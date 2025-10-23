@@ -59,6 +59,47 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+- Axios (API calls)
+- Plyr (Video player)
+
+## API Configuration
+
+This project uses a modular API structure with axios for data fetching.
+
+### Setup
+
+1. Copy `.env.example` to `.env`:
+```sh
+cp .env.example .env
+```
+
+2. Update the API endpoint in `.env`:
+```
+VITE_API_BASE_URL=https://your-api-endpoint.com
+```
+
+### API Structure
+
+The project follows best practices with:
+- **Types** (`src/types/video.ts`): TypeScript interfaces for type safety
+- **Services** (`src/services/videoApi.ts`): Modular API calls using axios
+- **Utils** (`src/utils/videoHelpers.ts`): Helper functions for data transformation
+
+### Expected API Response Format
+
+```json
+{
+  "items": [
+    {
+      "title": "Video Title",
+      "vLink": "https://www.youtube.com/watch?v=VIDEO_ID",
+      "thumbnail": "https://i.ytimg.com/vi/VIDEO_ID/hqdefault.jpg"
+    }
+  ],
+  "status": 200,
+  "message": "success"
+}
+```
 
 ## How can I deploy this project?
 

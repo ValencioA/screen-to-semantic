@@ -1,121 +1,84 @@
+import { useEffect, useState } from "react";
 import { TopNav } from "@/components/TopNav";
 import { BottomNav } from "@/components/BottomNav";
 import { HeroSection } from "@/components/HeroSection";
 import { ContentRow } from "@/components/ContentRow";
+import { videoApi } from "@/services/videoApi";
+import { Video } from "@/types/video";
+import { getYouTubeVideoId } from "@/utils/videoHelpers";
 
-const recentlyWatched = [
-  {
-    id: "1",
-    title: "The Prayer",
-    image: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&h=600&fit=crop",
-    year: "2023",
-    duration: "2h 15m",
-    tag: "Drama",
-  },
-  {
-    id: "2",
-    title: "Heaven's Reward",
-    image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&h=600&fit=crop",
-    year: "2023",
-    duration: "1h 48m",
-  },
-  {
-    id: "3",
-    title: "The Journey",
-    image: "https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&h=600&fit=crop",
-    year: "2022",
-    duration: "2h 5m",
-  },
-  {
-    id: "4",
-    title: "Sacred Path",
-    image: "https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=400&h=600&fit=crop",
-    year: "2023",
-    duration: "1h 52m",
-    tag: "Faith",
-  },
-];
+export default function Index() {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const highlights = [
-  {
-    id: "5",
-    title: "The Forge",
-    image: "https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=600&fit=crop",
-    year: "2024",
-    duration: "2h 10m",
-    tag: "NEW",
-  },
-  {
-    id: "6",
-    title: "Divine Grace",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=600&fit=crop",
-    year: "2023",
-    duration: "1h 45m",
-  },
-  {
-    id: "7",
-    title: "Faithful Hearts",
-    image: "https://images.unsplash.com/photo-1502759683299-cdcd6974244f?w=400&h=600&fit=crop",
-    year: "2023",
-    duration: "2h 20m",
-  },
-  {
-    id: "8",
-    title: "The Calling",
-    image: "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=600&fit=crop",
-    year: "2024",
-    duration: "1h 55m",
-    tag: "Trending",
-  },
-];
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        setLoading(true);
+        const response = await videoApi.getVideos();
+        if (response.status === 200 && response.items) {
+          setVideos(response.items);
+        }
+      } catch (err) {
+        console.error('Failed to fetch videos:', err);
+        setError('Failed to load videos');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-const originals = [
-  {
-    id: "9",
-    title: "Son of God",
-    image: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&h=600&fit=crop",
-    year: "2024",
-    duration: "2h 30m",
-    tag: "Original",
-  },
-  {
-    id: "10",
-    title: "Blessed Journey",
-    image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=600&fit=crop",
-    year: "2023",
-    duration: "1h 50m",
-  },
-  {
-    id: "11",
-    title: "Faith Restored",
-    image: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&h=600&fit=crop",
-    year: "2024",
-    duration: "2h 15m",
-    tag: "Original",
-  },
-  {
-    id: "12",
-    title: "The Testament",
-    image: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=400&h=600&fit=crop",
-    year: "2023",
-    duration: "2h 5m",
-  },
-];
+    fetchVideos();
+  }, []);
 
-const Index = () => {
+  // Transform API data to component format
+  const transformedVideos = videos.map((video) => ({
+    id: getYouTubeVideoId(video.vLink) || '',
+    title: video.title,
+    image: video.thumbnail,
+    duration: '',
+    year: '',
+  }));
+
+  // Split videos into sections
+  const recentlyWatched = transformedVideos.slice(0, 5);
+  const highlights = transformedVideos.slice(5, 10);
+  const originals = transformedVideos.slice(10, 15);
+
+  // Hero video (first video from the list)
+  const heroVideo = videos[0];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading videos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !heroVideo) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-destructive">{error || 'No videos available'}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <TopNav />
       
       <main className="pt-0 md:pt-16">
         <HeroSection
-          id="1"
-          title="The Son of God"
-          description="An epic cinematic journey through faith, redemption, and divine purpose. Experience the powerful story that has touched millions of hearts around the world."
-          image="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop"
-          year="2024"
-          duration="2h 30m"
-          rating="⭐ 4.8"
+          id={getYouTubeVideoId(heroVideo.vLink) || ''}
+          title={heroVideo.title}
+          description={heroVideo.title}
+          image={heroVideo.thumbnail}
         />
         
         <div className="space-y-8 md:space-y-12 mt-8 md:mt-12">
@@ -128,6 +91,4 @@ const Index = () => {
       <BottomNav />
     </div>
   );
-};
-
-export default Index;
+}
