@@ -75,7 +75,7 @@ cp .env.example .env
 
 2. Update the API endpoint in `.env`:
 ```
-VITE_API_BASE_URL=https://your-api-endpoint.com
+VITE_API_BASE_URL=https://sandbox-demo.dbtez.net/api
 ```
 
 ### API Structure
