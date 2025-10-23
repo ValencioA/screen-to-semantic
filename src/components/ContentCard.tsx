@@ -1,6 +1,8 @@
 import { Play } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ContentCardProps {
+  id?: string;
   title: string;
   image: string;
   duration?: string;
@@ -8,9 +10,20 @@ interface ContentCardProps {
   tag?: string;
 }
 
-export const ContentCard = ({ title, image, duration, year, tag }: ContentCardProps) => {
+export const ContentCard = ({ id, title, image, duration, year, tag }: ContentCardProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (id) {
+      navigate(`/video/${id}`);
+    }
+  };
+
   return (
-    <div className="group relative min-w-[160px] md:min-w-[200px] lg:min-w-[240px] cursor-pointer animate-scale-in">
+    <div 
+      onClick={handleClick}
+      className="group relative min-w-[160px] md:min-w-[200px] lg:min-w-[240px] cursor-pointer animate-scale-in"
+    >
       <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-card shadow-card transition-all duration-300 group-hover:scale-105 group-hover:shadow-glow">
         <img
           src={image}

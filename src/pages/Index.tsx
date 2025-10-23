@@ -107,8 +107,9 @@ const Index = () => {
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <TopNav />
       
-      <main className="pt-16">
+      <main className="pt-0 md:pt-16">
         <HeroSection
+          id="1"
           title="The Son of God"
           description="An epic cinematic journey through faith, redemption, and divine purpose. Experience the powerful story that has touched millions of hearts around the world."
           image="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080&fit=crop"

@@ -1,7 +1,9 @@
 import { Play, Info } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 
 interface HeroSectionProps {
+  id?: string;
   title: string;
   description: string;
   image: string;
@@ -10,7 +12,8 @@ interface HeroSectionProps {
   rating?: string;
 }
 
-export const HeroSection = ({ title, description, image, duration, year, rating }: HeroSectionProps) => {
+export const HeroSection = ({ id = "1", title, description, image, duration, year, rating }: HeroSectionProps) => {
+  const navigate = useNavigate();
   return (
     <section className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] w-full overflow-hidden">
       <div className="absolute inset-0">
@@ -43,11 +46,21 @@ export const HeroSection = ({ title, description, image, duration, year, rating 
           </p>
           
           <div className="flex flex-wrap gap-3">
-            <Button size="lg" variant="premium" className="gap-2">
+            <Button 
+              size="lg" 
+              variant="premium" 
+              className="gap-2"
+              onClick={() => navigate(`/video/${id}`)}
+            >
               <Play className="h-5 w-5 fill-current" />
               Play Now
             </Button>
-            <Button size="lg" variant="outline" className="gap-2">
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => navigate(`/video/${id}`)}
+            >
               <Info className="h-5 w-5" />
               More Info
             </Button>
