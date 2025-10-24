@@ -35,7 +35,7 @@ export const videoApi = {
   async searchVideos(query: string): Promise<VideoApiResponse> {
     try {
       const response = await axios.post<VideoApiResponse>(
-        'https://com.theholyredeemer.dbtez.net/searchVideo',
+        `${API_BASE_URL}/hrf_get_video_playlist_searchList`,
         { search: query }
       );
       console.log("Search Response", response);
