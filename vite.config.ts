@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    allowedHosts: ["com.theholyredeemer.dbtez.net"], 
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
