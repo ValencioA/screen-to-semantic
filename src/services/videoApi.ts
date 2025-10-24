@@ -30,5 +30,19 @@ export const videoApi = {
       console.error('Error fetching video:', error);
       throw error;
     }
+  },
+
+  async searchVideos(query: string): Promise<VideoApiResponse> {
+    try {
+      const response = await axios.post<VideoApiResponse>(
+        `${API_BASE_URL}/hrf_get_video_playlist`,
+        { search: query }
+      );
+      console.log("Search Response", response);
+      return response.data;
+    } catch (error) {
+      console.error('Error searching videos:', error);
+      throw error;
+    }
   }
 };
