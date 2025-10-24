@@ -20,21 +20,24 @@ export default function Index() {
     const fetchVideos = async () => {
       try {
         setLoading(true);
-        const [videosResponse, carouselResponse] = await Promise.all([
+        const [videosResponse, carouselResponse] = await Promise.allSettled([
           videoApi.getVideos(),
           videoApi.getCarouselVideos()
         ]);
         
-        if (videosResponse.status === 200 && videosResponse.items) {
-          setVideos(videosResponse.items);
+        if (videosResponse.status === 'fulfilled' && videosResponse.value.status === 200 && videosResponse.value.items) {
+          setVideos(videosResponse.value.items);
+        } else {
+          console.error('Failed to fetch videos:', videosResponse.status === 'rejected' ? videosResponse.reason : 'No items');
         }
         
-        if (carouselResponse.status === 200 && carouselResponse.items) {
-          setCarouselVideos(carouselResponse.items);
+        if (carouselResponse.status === 'fulfilled' && carouselResponse.value.status === 200 && carouselResponse.value.items) {
+          setCarouselVideos(carouselResponse.value.items);
+        } else {
+          console.error('Failed to fetch carousel:', carouselResponse.status === 'rejected' ? carouselResponse.reason : 'No items');
         }
       } catch (err) {
         console.error('Failed to fetch videos:', err);
-        setError('Failed to load videos');
       } finally {
         setLoading(false);
       }
@@ -82,33 +85,66 @@ export default function Index() {
     );
   }
 
-  if (error || !currentVideo) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-destructive">{error || 'No videos available'}</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <TopNav />
       
       <main className="pt-0 md:pt-16">
-        <HeroSection
-          id={getYouTubeVideoId(currentVideo.vLink) || ''}
-          title={currentVideo.title}
-          description={currentVideo.title}
-          image={currentVideo.thumbnail}
-          onClick={() => navigate(`/video/${getYouTubeVideoId(currentVideo.vLink)}`)}
-        />
+        {currentVideo ? (
+          <HeroSection
+            id={getYouTubeVideoId(currentVideo.vLink) || ''}
+            title={currentVideo.title}
+            description={currentVideo.title}
+            image={currentVideo.thumbnail}
+            onClick={() => navigate(`/video/${getYouTubeVideoId(currentVideo.vLink)}`)}
+          />
+        ) : (
+          <div className="relative w-full h-[50vh] md:h-[70vh] bg-muted animate-pulse" />
+        )}
         
         <div className="space-y-8 md:space-y-12 mt-8 md:mt-12">
-          <ContentRow title="Recently Watched" items={recentlyWatched} showViewAll />
-          <ContentRow title="Highlights" items={highlights} showViewAll />
-          <ContentRow title="Originals" items={originals} showViewAll />
+          {recentlyWatched.length > 0 ? (
+            <ContentRow title="Recently Watched" items={recentlyWatched} showViewAll />
+          ) : (
+            <div className="px-4 md:px-6 lg:px-8 space-y-4">
+              <h2 className="text-xl md:text-2xl font-bold">Recently Watched</h2>
+              <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="min-w-[160px] md:min-w-[200px] lg:min-w-[240px]">
+                    <div className="aspect-[2/3] bg-muted animate-pulse rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {highlights.length > 0 ? (
+            <ContentRow title="Highlights" items={highlights} showViewAll />
+          ) : (
+            <div className="px-4 md:px-6 lg:px-8 space-y-4">
+              <h2 className="text-xl md:text-2xl font-bold">Highlights</h2>
+              <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="min-w-[160px] md:min-w-[200px] lg:min-w-[240px]">
+                    <div className="aspect-[2/3] bg-muted animate-pulse rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {originals.length > 0 ? (
+            <ContentRow title="Originals" items={originals} showViewAll />
+          ) : (
+            <div className="px-4 md:px-6 lg:px-8 space-y-4">
+              <h2 className="text-xl md:text-2xl font-bold">Originals</h2>
+              <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2">
+                {[1, 2, 3, 4, 5].map(i => (
+                  <div key={i} className="min-w-[160px] md:min-w-[200px] lg:min-w-[240px]">
+                    <div className="aspect-[2/3] bg-muted animate-pulse rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
       
