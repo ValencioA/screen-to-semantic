@@ -44,5 +44,19 @@ export const videoApi = {
       console.error('Error searching videos:', error);
       throw error;
     }
+  },
+
+  async getCarouselVideos(): Promise<VideoApiResponse> {
+    try {
+      const response = await axios.post<VideoApiResponse>(
+        `${API_BASE_URL}/hrf_get_video_carousal`,
+        {}
+      );
+      console.log("Carousel Response", response);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching carousel videos:', error);
+      throw error;
+    }
   }
 };

@@ -7,7 +7,7 @@ export const TopNav = () => {
       <div className="flex items-center justify-between h-16 px-4 md:px-6 lg:px-8">
         <div className="flex items-center gap-8">
           <h1 className="text-2xl font-bold bg-gradient-premium bg-clip-text text-transparent">
-            StreamHub
+            The Holy Redeemer
           </h1>
           
           <nav className="hidden md:flex items-center gap-6">

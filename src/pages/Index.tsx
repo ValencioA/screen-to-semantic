@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
 import { BottomNav } from "@/components/BottomNav";
 import { HeroSection } from "@/components/HeroSection";
@@ -8,7 +9,10 @@ import { Video } from "@/types/video";
 import { getYouTubeVideoId } from "@/utils/videoHelpers";
 
 export default function Index() {
+  const navigate = useNavigate();
   const [videos, setVideos] = useState<Video[]>([]);
+  const [carouselVideos, setCarouselVideos] = useState<Video[]>([]);
+  const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,9 +20,17 @@ export default function Index() {
     const fetchVideos = async () => {
       try {
         setLoading(true);
-        const response = await videoApi.getVideos();
-        if (response.status === 200 && response.items) {
-          setVideos(response.items);
+        const [videosResponse, carouselResponse] = await Promise.all([
+          videoApi.getVideos(),
+          videoApi.getCarouselVideos()
+        ]);
+        
+        if (videosResponse.status === 200 && videosResponse.items) {
+          setVideos(videosResponse.items);
+        }
+        
+        if (carouselResponse.status === 200 && carouselResponse.items) {
+          setCarouselVideos(carouselResponse.items);
         }
       } catch (err) {
         console.error('Failed to fetch videos:', err);
@@ -30,6 +42,17 @@ export default function Index() {
 
     fetchVideos();
   }, []);
+
+  // Auto-rotate carousel every 5 seconds
+  useEffect(() => {
+    if (carouselVideos.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentCarouselIndex((prev) => (prev + 1) % carouselVideos.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [carouselVideos.length]);
 
   // Transform API data to component format
   const transformedVideos = videos.map((video) => ({
@@ -45,8 +68,8 @@ export default function Index() {
   const highlights = transformedVideos.slice(5, 10);
   const originals = transformedVideos.slice(10, 15);
 
-  // Hero video (first video from the list)
-  const heroVideo = videos[0];
+  // Current carousel video
+  const currentVideo = carouselVideos[currentCarouselIndex];
 
   if (loading) {
     return (
@@ -59,7 +82,7 @@ export default function Index() {
     );
   }
 
-  if (error || !heroVideo) {
+  if (error || !currentVideo) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -75,10 +98,11 @@ export default function Index() {
       
       <main className="pt-0 md:pt-16">
         <HeroSection
-          id={getYouTubeVideoId(heroVideo.vLink) || ''}
-          title={heroVideo.title}
-          description={heroVideo.title}
-          image={heroVideo.thumbnail}
+          id={getYouTubeVideoId(currentVideo.vLink) || ''}
+          title={currentVideo.title}
+          description={currentVideo.title}
+          image={currentVideo.thumbnail}
+          onClick={() => navigate(`/video/${getYouTubeVideoId(currentVideo.vLink)}`)}
         />
         
         <div className="space-y-8 md:space-y-12 mt-8 md:mt-12">
