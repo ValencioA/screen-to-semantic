@@ -28,20 +28,29 @@ export default function VideoDetail() {
         if (response.status === 200 && response.items) {
           // Find current video by ID
           const video = response.items.find(v => getYouTubeVideoId(v.vLink) === id);
-          setCurrentVideo(video || response.items[0]);
           
-          // Set related videos (exclude current)
-          const related = response.items.filter(v => getYouTubeVideoId(v.vLink) !== id).slice(0, 5);
-          setRelatedVideos(related);
+          if (video) {
+            setCurrentVideo(video);
+            
+            // Set related videos (exclude current)
+            const related = response.items.filter(v => getYouTubeVideoId(v.vLink) !== id).slice(0, 5);
+            setRelatedVideos(related);
+          } else {
+            console.error('Video not found:', id);
+            setCurrentVideo(null);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch video data:', error);
+        setCurrentVideo(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVideoData();
+    if (id) {
+      fetchVideoData();
+    }
   }, [id]);
 
   const handleShare = async () => {
