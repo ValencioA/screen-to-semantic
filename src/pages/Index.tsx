@@ -124,6 +124,9 @@ export default function Index() {
             description={currentVideo.title}
             image={currentVideo.thumbnail}
             onClick={() => navigate(`/video/${getYouTubeVideoId(currentVideo.vLink)}`)}
+            currentIndex={currentCarouselIndex}
+            totalCount={carouselVideos.length}
+            onBulletClick={(index) => setCurrentCarouselIndex(index)}
           />
         ) : (
           <div className="relative w-full h-[50vh] md:h-[70vh] bg-muted animate-pulse" />

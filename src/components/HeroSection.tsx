@@ -7,9 +7,12 @@ interface HeroSectionProps {
   year?: string;
   rating?: string;
   onClick?: () => void;
+  currentIndex?: number;
+  totalCount?: number;
+  onBulletClick?: (index: number) => void;
 }
 
-export const HeroSection = ({ id = "1", title, description, image, duration, year, rating, onClick }: HeroSectionProps) => {
+export const HeroSection = ({ id = "1", title, description, image, duration, year, rating, onClick, currentIndex = 0, totalCount = 0, onBulletClick }: HeroSectionProps) => {
   return (
     <section 
       className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] w-full overflow-hidden cursor-pointer"
@@ -41,6 +44,27 @@ export const HeroSection = ({ id = "1", title, description, image, duration, yea
           </p>
         </div>
       </div>
+      
+      {/* Navigation Bullets */}
+      {totalCount > 1 && (
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+          {Array.from({ length: totalCount }).map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.stopPropagation();
+                onBulletClick?.(index);
+              }}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentIndex 
+                  ? 'bg-primary ring-2 ring-primary/50' 
+                  : 'bg-muted-foreground/50 hover:bg-muted-foreground/80'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 };
