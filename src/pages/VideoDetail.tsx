@@ -23,22 +23,35 @@ export default function VideoDetail() {
     const fetchVideoData = async () => {
       try {
         setLoading(true);
-        const response = await videoApi.getVideos();
         
-        if (response.status === 200 && response.items) {
-          // Find current video by ID
-          const video = response.items.find(v => getYouTubeVideoId(v.vLink) === id);
+        // Fetch from all endpoints to find the video
+        const [carousel, recent, highlights, originals] = await Promise.all([
+          videoApi.getCarouselVideos().catch(() => ({ items: [], status: 200, message: '' })),
+          videoApi.getRecentWatched().catch(() => ({ items: [], status: 200, message: '' })),
+          videoApi.getHighlights().catch(() => ({ items: [], status: 200, message: '' })),
+          videoApi.getOriginalVideos().catch(() => ({ items: [], status: 200, message: '' })),
+        ]);
+        
+        // Combine all videos
+        const allVideos = [
+          ...(carousel.items || []),
+          ...(recent.items || []),
+          ...(highlights.items || []),
+          ...(originals.items || []),
+        ];
+        
+        // Find current video by ID
+        const video = allVideos.find(v => getYouTubeVideoId(v.vLink) === id);
+        
+        if (video) {
+          setCurrentVideo(video);
           
-          if (video) {
-            setCurrentVideo(video);
-            
-            // Set related videos (exclude current)
-            const related = response.items.filter(v => getYouTubeVideoId(v.vLink) !== id).slice(0, 5);
-            setRelatedVideos(related);
-          } else {
-            console.error('Video not found:', id);
-            setCurrentVideo(null);
-          }
+          // Set related videos (exclude current)
+          const related = allVideos.filter(v => getYouTubeVideoId(v.vLink) !== id).slice(0, 5);
+          setRelatedVideos(related);
+        } else {
+          console.error('Video not found:', id);
+          setCurrentVideo(null);
         }
       } catch (error) {
         console.error('Failed to fetch video data:', error);
