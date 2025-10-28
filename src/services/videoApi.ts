@@ -58,5 +58,47 @@ export const videoApi = {
       console.error('Error fetching carousel videos:', error);
       throw error;
     }
+  },
+
+  async getHighlights(): Promise<VideoApiResponse> {
+    try {
+      const response = await axios.post<VideoApiResponse>(
+        `${API_BASE_URL}/hrf_highlights`,
+        {}
+      );
+      console.log("Highlights Response", response);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching highlights:', error);
+      throw error;
+    }
+  },
+
+  async getRecentWatched(): Promise<VideoApiResponse> {
+    try {
+      const response = await axios.post<VideoApiResponse>(
+        `${API_BASE_URL}/hrf_recent_watched`,
+        {}
+      );
+      console.log("Recent Watched Response", response);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching recent watched:', error);
+      throw error;
+    }
+  },
+
+  async getOriginalVideos(): Promise<VideoApiResponse> {
+    try {
+      const response = await axios.post<VideoApiResponse>(
+        `${API_BASE_URL}/hrf_original_videos`,
+        {}
+      );
+      console.log("Original Videos Response", response);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching original videos:', error);
+      throw error;
+    }
   }
 };

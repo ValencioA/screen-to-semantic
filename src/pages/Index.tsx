@@ -10,8 +10,10 @@ import { getYouTubeVideoId } from "@/utils/videoHelpers";
 
 export default function Index() {
   const navigate = useNavigate();
-  const [videos, setVideos] = useState<Video[]>([]);
   const [carouselVideos, setCarouselVideos] = useState<Video[]>([]);
+  const [recentVideos, setRecentVideos] = useState<Video[]>([]);
+  const [highlightVideos, setHighlightVideos] = useState<Video[]>([]);
+  const [originalVideos, setOriginalVideos] = useState<Video[]>([]);
   const [currentCarouselIndex, setCurrentCarouselIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,21 +22,35 @@ export default function Index() {
     const fetchVideos = async () => {
       try {
         setLoading(true);
-        const [videosResponse, carouselResponse] = await Promise.allSettled([
-          videoApi.getVideos(),
-          videoApi.getCarouselVideos()
+        const [carouselResponse, recentResponse, highlightsResponse, originalsResponse] = await Promise.allSettled([
+          videoApi.getCarouselVideos(),
+          videoApi.getRecentWatched(),
+          videoApi.getHighlights(),
+          videoApi.getOriginalVideos()
         ]);
-        
-        if (videosResponse.status === 'fulfilled' && videosResponse.value.status === 200 && videosResponse.value.items) {
-          setVideos(videosResponse.value.items);
-        } else {
-          console.error('Failed to fetch videos:', videosResponse.status === 'rejected' ? videosResponse.reason : 'No items');
-        }
         
         if (carouselResponse.status === 'fulfilled' && carouselResponse.value.status === 200 && carouselResponse.value.items) {
           setCarouselVideos(carouselResponse.value.items);
         } else {
           console.error('Failed to fetch carousel:', carouselResponse.status === 'rejected' ? carouselResponse.reason : 'No items');
+        }
+        
+        if (recentResponse.status === 'fulfilled' && recentResponse.value.status === 200 && recentResponse.value.items) {
+          setRecentVideos(recentResponse.value.items);
+        } else {
+          console.error('Failed to fetch recent watched:', recentResponse.status === 'rejected' ? recentResponse.reason : 'No items');
+        }
+        
+        if (highlightsResponse.status === 'fulfilled' && highlightsResponse.value.status === 200 && highlightsResponse.value.items) {
+          setHighlightVideos(highlightsResponse.value.items);
+        } else {
+          console.error('Failed to fetch highlights:', highlightsResponse.status === 'rejected' ? highlightsResponse.reason : 'No items');
+        }
+        
+        if (originalsResponse.status === 'fulfilled' && originalsResponse.value.status === 200 && originalsResponse.value.items) {
+          setOriginalVideos(originalsResponse.value.items);
+        } else {
+          console.error('Failed to fetch originals:', originalsResponse.status === 'rejected' ? originalsResponse.reason : 'No items');
         }
       } catch (err) {
         console.error('Failed to fetch videos:', err);
@@ -58,7 +74,7 @@ export default function Index() {
   }, [carouselVideos.length]);
 
   // Transform API data to component format
-  const transformedVideos = videos.map((video) => ({
+  const recentlyWatched = recentVideos.map((video) => ({
     id: getYouTubeVideoId(video.vLink) || '',
     title: video.title,
     image: video.thumbnail,
@@ -66,10 +82,21 @@ export default function Index() {
     year: '',
   }));
 
-  // Split videos into sections
-  const recentlyWatched = transformedVideos.slice(0, 5);
-  const highlights = transformedVideos.slice(5, 10);
-  const originals = transformedVideos.slice(10, 15);
+  const highlights = highlightVideos.map((video) => ({
+    id: getYouTubeVideoId(video.vLink) || '',
+    title: video.title,
+    image: video.thumbnail,
+    duration: '',
+    year: '',
+  }));
+
+  const originals = originalVideos.map((video) => ({
+    id: getYouTubeVideoId(video.vLink) || '',
+    title: video.title,
+    image: video.thumbnail,
+    duration: '',
+    year: '',
+  }));
 
   // Current carousel video
   const currentVideo = carouselVideos[currentCarouselIndex];
