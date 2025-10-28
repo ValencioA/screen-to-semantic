@@ -24,7 +24,7 @@ export const ContentCard = ({ id, title, image, duration, year, tag }: ContentCa
       onClick={handleClick}
       className="group relative w-[160px] md:w-[200px] lg:w-[240px] flex-shrink-0 cursor-pointer animate-scale-in"
     >
-      <div className="relative aspect-[2/3] overflow-hidden rounded-xl bg-card shadow-card transition-all duration-300 group-hover:scale-105 group-hover:shadow-glow">
+      <div className="relative aspect-video overflow-hidden rounded-xl bg-card shadow-card transition-all duration-300 group-hover:scale-105 group-hover:shadow-glow">
         <img
           src={image}
           alt={title}

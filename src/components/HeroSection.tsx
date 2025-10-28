@@ -15,7 +15,7 @@ interface HeroSectionProps {
 export const HeroSection = ({ id = "1", title, description, image, duration, year, rating, onClick, currentIndex = 0, totalCount = 0, onBulletClick }: HeroSectionProps) => {
   return (
     <section 
-      className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] w-full overflow-hidden cursor-pointer"
+      className="relative h-[60vh] md:h-[70vh] lg:h-[80vh] w-full overflow-hidden cursor-pointer rounded-2xl mx-4 md:mx-6 lg:mx-8"
       onClick={onClick}
     >
       <div className="absolute inset-0">
