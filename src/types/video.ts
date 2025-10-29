@@ -9,3 +9,14 @@ export interface VideoApiResponse {
   status: number;
   message: string;
 }
+
+export interface VideoSection {
+  title: string;
+  items: Video[];
+}
+
+export interface VideoSectionsResponse {
+  status: number;
+  message: string;
+  sections: VideoSection[];
+}

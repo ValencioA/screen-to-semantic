@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { VideoApiResponse } from '@/types/video';
+import { VideoApiResponse, VideoSectionsResponse } from '@/types/video';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://sandbox-demo.dbtez.net/api';
 
@@ -98,6 +98,20 @@ export const videoApi = {
       return response.data;
     } catch (error) {
       console.error('Error fetching original videos:', error);
+      throw error;
+    }
+  },
+
+  async getAllSections(): Promise<VideoSectionsResponse> {
+    try {
+      const response = await axios.post<VideoSectionsResponse>(
+        `${API_BASE_URL}/hrf_get_all_sections`,
+        {}
+      );
+      console.log("All Sections Response", response);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching all sections:', error);
       throw error;
     }
   }
