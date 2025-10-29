@@ -89,17 +89,22 @@ export default function Index() {
         <div className="space-y-8 md:space-y-12 mt-8 md:mt-12">
           {contentSections.length > 0 ? (
             contentSections.map((section, index) => {
-              const items = section.items.map((video) => ({
-                id: getYouTubeVideoId(video.vLink) || '',
-                title: video.title,
-                image: video.thumbnail,
-                duration: '',
-                year: '',
-              }));
+              const items = section.items
+                .filter((video) => video.vLink && video.thumbnail) // Filter out invalid items
+                .map((video) => ({
+                  id: getYouTubeVideoId(video.vLink) || '',
+                  title: video.title,
+                  image: video.thumbnail,
+                  duration: '',
+                  year: '',
+                }));
+
+              // Only render section if it has valid items
+              if (items.length === 0) return null;
 
               return (
                 <ContentRow 
-                  key={`${section.title}-${index}`}
+                  key={section.id || `${section.title}-${index}`}
                   title={section.title} 
                   items={items} 
                   showViewAll 
