@@ -25,6 +25,13 @@ export default function Index() {
         if (response.status === 200 && response.sections) {
           console.log('Sections received:', response.sections);
           console.log('Number of sections:', response.sections.length);
+          
+          // Log first item from first section to see structure
+          if (response.sections[0]?.items?.[0]) {
+            console.log('Sample video item:', response.sections[0].items[0]);
+            console.log('Item keys:', Object.keys(response.sections[0].items[0]));
+          }
+          
           setSections(response.sections);
         } else {
           console.error('Failed to fetch sections:', response.message);
@@ -99,18 +106,31 @@ export default function Index() {
         <div className="space-y-8 md:space-y-12 mt-8 md:mt-12">
           {contentSections.length > 0 ? (
             contentSections.map((section, index) => {
-              const items = section.items
-                .filter((video) => video.vLink && video.thumbnail) // Filter out invalid items
+              console.log(`Processing section ${index}:`, section.title, 'Items:', section.items?.length);
+              
+              const items = (section.items || [])
+                .filter((video) => {
+                  const hasRequiredFields = video && video.vLink && video.thumbnail;
+                  if (!hasRequiredFields) {
+                    console.log('Filtered out video:', video);
+                  }
+                  return hasRequiredFields;
+                })
                 .map((video) => ({
                   id: getYouTubeVideoId(video.vLink) || '',
-                  title: video.title,
+                  title: video.title || 'Untitled',
                   image: video.thumbnail,
                   duration: '',
                   year: '',
                 }));
 
+              console.log(`Section "${section.title}" has ${items.length} valid items`);
+
               // Only render section if it has valid items
-              if (items.length === 0) return null;
+              if (items.length === 0) {
+                console.log(`Skipping section "${section.title}" - no valid items`);
+                return null;
+              }
 
               return (
                 <ContentRow 
