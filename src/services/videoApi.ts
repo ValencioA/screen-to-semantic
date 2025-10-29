@@ -105,7 +105,7 @@ export const videoApi = {
   async getAllSections(): Promise<VideoSectionsResponse> {
     try {
       const response = await axios.post<VideoSectionsResponse>(
-        `${API_BASE_URL}/hrf_get_all_sections`,
+        `${API_BASE_URL}/hrf_get_ott_sections`,
         {}
       );
       console.log("All Sections Response", response);
