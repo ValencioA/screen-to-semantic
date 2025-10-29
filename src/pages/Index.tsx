@@ -19,12 +19,20 @@ export default function Index() {
       try {
         setLoading(true);
         const response = await videoApi.getAllSections();
-        
-        if (response.status === 200 && response.sections && Array.isArray(response.sections)) {
-          setSections(response.sections);
+        console.log("All Sections Response order", response);
+        console.log("Extracted sections:", response.result?.sections);
+
+        if (
+          response.status === 200 &&
+          response.result &&
+          Array.isArray(response.result.sections)
+        ) {
+          setSections(response.result.sections);
+        } else {
+          console.warn("Unexpected API structure:", response);
         }
       } catch (err) {
-        console.error('Failed to fetch videos:', err);
+        console.error("Failed to fetch videos:", err);
       } finally {
         setLoading(false);
       }
@@ -33,15 +41,15 @@ export default function Index() {
     fetchVideos();
   }, []);
 
-  // Get carousel videos from first section
-  const carouselVideos = sections.length > 0 && Array.isArray(sections[0]?.items) 
-    ? sections[0].items 
+  // Carousel videos from the first section only
+  const carouselVideos = sections.length > 0 && Array.isArray(sections[0]?.items)
+    ? sections[0].items
     : [];
 
   // Auto-rotate carousel every 5 seconds
   useEffect(() => {
     if (carouselVideos.length === 0) return;
-    
+
     const interval = setInterval(() => {
       setCurrentCarouselIndex((prev) => (prev + 1) % carouselVideos.length);
     }, 5000);
@@ -49,11 +57,7 @@ export default function Index() {
     return () => clearInterval(interval);
   }, [carouselVideos.length]);
 
-  // Current carousel video
   const currentVideo = carouselVideos[currentCarouselIndex];
-
-  // Transform sections for rendering (skip first section if used for carousel)
-  const contentSections = sections.length > 1 ? sections.slice(1) : [];
 
   if (loading) {
     return (
@@ -69,8 +73,9 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background pb-20 md:pb-0">
       <TopNav />
-      
+
       <main className="pt-0 md:pt-16">
+        {/* Hero Carousel (from first section only) */}
         {currentVideo ? (
           <HeroSection
             id={getYouTubeVideoId(currentVideo.vLink) || ''}
@@ -85,17 +90,18 @@ export default function Index() {
         ) : (
           <div className="relative w-full h-[50vh] md:h-[70vh] bg-muted animate-pulse" />
         )}
-        
-        <div className="space-y-8 md:space-y-12 mt-8 md:mt-12">
-          {contentSections.length > 0 ? (
-            contentSections.map((section, index) => {
+
+        {/* Dynamic Sections (excluding the first one used in carousel) */}
+        <div className="space-y-8 md:space-y-12 mt-8 md:mt-12 px-4 md:px-6 lg:px-8">
+          {sections.length > 0 ? (
+            sections.slice(1).map((section, index) => {
               if (!section || !Array.isArray(section.items) || section.items.length === 0) {
                 return null;
               }
 
               const items = section.items
-                .filter((video) => video && video.vLink && video.thumbnail)
-                .map((video) => ({
+                .filter(video => video && video.vLink && video.thumbnail)
+                .map(video => ({
                   id: getYouTubeVideoId(video.vLink) || '',
                   title: video.title || 'Untitled',
                   image: video.thumbnail,
@@ -106,29 +112,25 @@ export default function Index() {
               if (items.length === 0) return null;
 
               return (
-                <ContentRow 
-                  key={section.id || `section-${index}`}
-                  title={section.title || 'Videos'} 
-                  items={items} 
-                  showViewAll 
+                <ContentRow
+                  key={section.title || `section-${index + 1}`}
+                  title={section.title}
+                  items={items}
+                  showViewAll
                 />
               );
             })
           ) : (
-            <div className="px-4 md:px-6 lg:px-8 space-y-4">
-              <h2 className="text-xl md:text-2xl font-bold">Loading content...</h2>
-              <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2">
-                {[1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="min-w-[160px] md:min-w-[200px] lg:min-w-[240px]">
-                    <div className="aspect-[2/3] bg-muted animate-pulse rounded-lg" />
-                  </div>
-                ))}
-              </div>
+            <div className="space-y-4 p-6">
+              <h2 className="text-xl md:text-2xl font-bold text-white">No content available</h2>
+              <p className="text-muted-foreground">
+                We couldn't load any sections. Please check your connection or try again later.
+              </p>
             </div>
           )}
         </div>
       </main>
-      
+
       <BottomNav />
     </div>
   );

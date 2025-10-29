@@ -1,5 +1,4 @@
 export interface Video {
-  id?: string;
   title: string;
   vLink: string;
   thumbnail: string;
@@ -12,7 +11,6 @@ export interface VideoApiResponse {
 }
 
 export interface VideoSection {
-  id?: string;
   title: string;
   items: Video[];
 }
