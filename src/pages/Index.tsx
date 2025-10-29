@@ -18,17 +18,23 @@ export default function Index() {
     const fetchVideos = async () => {
       try {
         setLoading(true);
+        console.log('Fetching sections from API...');
         const response = await videoApi.getAllSections();
+        console.log('API Response:', response);
         
         if (response.status === 200 && response.sections) {
+          console.log('Sections received:', response.sections);
+          console.log('Number of sections:', response.sections.length);
           setSections(response.sections);
         } else {
           console.error('Failed to fetch sections:', response.message);
+          console.error('Response:', response);
         }
       } catch (err) {
         console.error('Failed to fetch videos:', err);
       } finally {
         setLoading(false);
+        console.log('Loading complete');
       }
     };
 
@@ -36,7 +42,7 @@ export default function Index() {
   }, []);
 
   // Get carousel videos from first section or dedicated carousel section
-  const carouselVideos = sections.length > 0 ? sections[0].items : [];
+  const carouselVideos = sections.length > 0 && sections[0].items ? sections[0].items : [];
 
   // Auto-rotate carousel every 5 seconds
   useEffect(() => {
@@ -53,7 +59,11 @@ export default function Index() {
   const currentVideo = carouselVideos[currentCarouselIndex];
 
   // Transform sections for rendering (skip first section if used for carousel)
-  const contentSections = sections.slice(1);
+  const contentSections = sections.length > 1 ? sections.slice(1) : [];
+  
+  console.log('Carousel videos count:', carouselVideos.length);
+  console.log('Content sections count:', contentSections.length);
+  console.log('Current video:', currentVideo);
 
   if (loading) {
     return (
