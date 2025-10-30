@@ -19,15 +19,15 @@ export default function Index() {
       try {
         setLoading(true);
         const response = await videoApi.getAllSections();
-        console.log("All Sections Response order", response);
-        console.log("Extracted sections:", response.result?.sections);
+        console.log("All Sections Response:", response);
+        console.log("Extracted sections:", response.sections);
 
         if (
           response.status === 200 &&
-          response.result &&
-          Array.isArray(response.result.sections)
+          response.sections &&
+          Array.isArray(response.sections)
         ) {
-          setSections(response.result.sections);
+          setSections(response.sections);
         } else {
           console.warn("Unexpected API structure:", response);
         }
