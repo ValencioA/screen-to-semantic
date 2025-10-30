@@ -114,5 +114,19 @@ export const videoApi = {
       console.error('Error fetching all sections:', error);
       throw error;
     }
+  },
+
+  async getVideoDetails(videoId: string): Promise<VideoApiResponse> {
+    try {
+      const response = await axios.post<VideoApiResponse>(
+        `${API_BASE_URL}/hrf_get_video_details`,
+        { p_vlink: videoId }
+      );
+      console.log("Video Details Response", response);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching video details:', error);
+      throw error;
+    }
   }
 };

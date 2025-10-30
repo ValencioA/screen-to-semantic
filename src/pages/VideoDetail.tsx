@@ -24,26 +24,26 @@ export default function VideoDetail() {
       try {
         setLoading(true);
         
-        // Fetch all sections
-        const response = await videoApi.getAllSections();
+        // Fetch current video details
+        const videoResponse = await videoApi.getVideoDetails(id || '');
         
-        if (response.status === 200 && response.sections) {
+        if (videoResponse.status === 200 && videoResponse.items && videoResponse.items.length > 0) {
+          setCurrentVideo(videoResponse.items[0]);
+        } else {
+          console.error('Video not found:', id);
+          setCurrentVideo(null);
+        }
+
+        // Fetch sections for related videos
+        const sectionsResponse = await videoApi.getAllSections();
+        
+        if (sectionsResponse.status === 200 && sectionsResponse.result?.sections) {
           // Combine all videos from all sections
-          const allVideos = response.sections.flatMap(section => section.items);
+          const allVideos = sectionsResponse.result.sections.flatMap(section => section.items);
           
-          // Find current video by ID
-          const video = allVideos.find(v => getYouTubeVideoId(v.vLink) === id);
-          
-          if (video) {
-            setCurrentVideo(video);
-            
-            // Set related videos (exclude current)
-            const related = allVideos.filter(v => getYouTubeVideoId(v.vLink) !== id).slice(0, 5);
-            setRelatedVideos(related);
-          } else {
-            console.error('Video not found:', id);
-            setCurrentVideo(null);
-          }
+          // Set related videos (exclude current)
+          const related = allVideos.filter(v => getYouTubeVideoId(v.vLink) !== id).slice(0, 5);
+          setRelatedVideos(related);
         }
       } catch (error) {
         console.error('Failed to fetch video data:', error);
