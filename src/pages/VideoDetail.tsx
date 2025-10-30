@@ -6,7 +6,7 @@ import "plyr-react/plyr.css";
 import { videoApi } from "@/services/videoApi";
 import { Video, VideoSection } from "@/types/video";
 import { getYouTubeVideoId } from "@/utils/videoHelpers";
-import { ContentCard } from "@/components/ContentCard";
+import { ContentRow } from "@/components/ContentRow";
 import { useToast } from "@/hooks/use-toast";
 
 export default function VideoDetail() {
@@ -16,41 +16,55 @@ export default function VideoDetail() {
   const { toast } = useToast();
   
   const [currentVideo, setCurrentVideo] = useState<Video | null>(null);
-  const [relatedVideos, setRelatedVideos] = useState<Video[]>([]);
+  const [sections, setSections] = useState<VideoSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
     const fetchVideoData = async () => {
+      setLoading(true);
+      setVideoError(false);
+      
+      // Fetch video details
       try {
-        setLoading(true);
-        
-        // Fetch current video details
         const videoResponse = await videoApi.getVideoDetails(id || '');
         
-        if (videoResponse.status === 200 && videoResponse.items && videoResponse.items.length > 0) {
-          setCurrentVideo(videoResponse.items[0]);
+        if (videoResponse.status === 200) {
+          // Handle new structure with sections
+          if (videoResponse.result?.sections && videoResponse.result.sections.length > 0) {
+            const firstVideo = videoResponse.result.sections[0]?.items?.[0];
+            if (firstVideo) {
+              setCurrentVideo(firstVideo);
+            }
+          } 
+          // Handle old structure with items
+          else if (videoResponse.items && videoResponse.items.length > 0) {
+            setCurrentVideo(videoResponse.items[0]);
+          } else {
+            console.error('Video not found:', id);
+            setVideoError(true);
+          }
         } else {
-          console.error('Video not found:', id);
-          setCurrentVideo(null);
+          setVideoError(true);
         }
+      } catch (error) {
+        console.error('Failed to fetch video details:', error);
+        setVideoError(true);
+      }
 
-        // Fetch sections for related videos
+      // Fetch sections for recommended videos - independent of video details
+      try {
         const sectionsResponse = await videoApi.getAllSections();
         
         if (sectionsResponse.status === 200 && sectionsResponse.result?.sections) {
-          // Combine all videos from all sections
-          const allVideos = sectionsResponse.result.sections.flatMap(section => section.items);
-          
-          // Set related videos (exclude current)
-          const related = allVideos.filter(v => getYouTubeVideoId(v.vLink) !== id).slice(0, 5);
-          setRelatedVideos(related);
+          setSections(sectionsResponse.result.sections);
         }
       } catch (error) {
-        console.error('Failed to fetch video data:', error);
-        setCurrentVideo(null);
-      } finally {
-        setLoading(false);
+        console.error('Failed to fetch sections:', error);
+        // Don't set error state, just log - sections are optional
       }
+      
+      setLoading(false);
     };
 
     if (id) {
@@ -84,7 +98,7 @@ export default function VideoDetail() {
     );
   }
 
-  if (!currentVideo) {
+  if (!loading && videoError) {
     return (
       <div className="min-h-screen bg-background">
         <section className="relative w-full bg-black">
@@ -94,14 +108,25 @@ export default function VideoDetail() {
           >
             <ChevronLeft className="h-6 w-6" />
           </button>
-          <div className="aspect-video w-full bg-muted animate-pulse" />
-        </section>
-        <main className="px-4 md:px-6 lg:px-8 mt-6">
-          <div className="max-w-4xl space-y-6">
-            <div className="h-10 bg-muted animate-pulse rounded w-3/4" />
-            <div className="h-20 bg-muted animate-pulse rounded" />
+          <div className="aspect-video w-full bg-muted flex items-center justify-center">
+            <p className="text-muted-foreground">Video not found</p>
           </div>
-        </main>
+        </section>
+        {sections.length > 0 && (
+          <main className="px-4 md:px-6 lg:px-8 mt-6 space-y-8">
+            {sections.map((section, index) => (
+              <ContentRow
+                key={index}
+                title={section.title}
+                items={section.items.map(video => ({
+                  id: getYouTubeVideoId(video.vLink) || '',
+                  title: video.title,
+                  image: video.thumbnail,
+                }))}
+              />
+            ))}
+          </main>
+        )}
       </div>
     );
   }
@@ -187,28 +212,24 @@ export default function VideoDetail() {
             </button>
           </div>
 
-          {/* Related Videos */}
-          <section className="space-y-4 pt-6 pb-8">
-            <h2 className="text-xl font-bold">Related Videos</h2>
-            <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2">
-              {relatedVideos.length > 0 ? (
-                relatedVideos.map((video) => (
-                  <ContentCard 
-                    key={getYouTubeVideoId(video.vLink)}
-                    id={getYouTubeVideoId(video.vLink) || ''}
-                    title={video.title}
-                    image={video.thumbnail}
-                  />
-                ))
-              ) : (
-                [1, 2, 3, 4, 5].map(i => (
-                  <div key={i} className="min-w-[160px] md:min-w-[200px] lg:min-w-[240px]">
-                    <div className="aspect-[2/3] bg-muted animate-pulse rounded-lg" />
-                  </div>
-                ))
-              )}
+          {/* Recommended Videos Sections */}
+          {sections.length > 0 && (
+            <div className="space-y-8 pt-6 pb-8">
+              {sections.map((section, index) => (
+                <ContentRow
+                  key={index}
+                  title={section.title}
+                  items={section.items
+                    .filter(v => getYouTubeVideoId(v.vLink) !== id)
+                    .map(video => ({
+                      id: getYouTubeVideoId(video.vLink) || '',
+                      title: video.title,
+                      image: video.thumbnail,
+                    }))}
+                />
+              ))}
             </div>
-          </section>
+          )}
         </div>
       </main>
     </div>

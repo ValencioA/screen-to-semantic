@@ -5,9 +5,14 @@ export interface Video {
 }
 
 export interface VideoApiResponse {
-  items: Video[];
+  items?: Video[];
   status: number;
   message: string;
+  result?: {
+    status: number;
+    message: string;
+    sections?: VideoSection[];
+  };
 }
 
 export interface VideoSection {
