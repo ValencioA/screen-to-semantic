@@ -102,12 +102,12 @@ export default function VideoDetail() {
     return (
       <div className="min-h-screen bg-background">
         <section className="relative w-full bg-black">
-          <button
-            onClick={() => navigate(-1)}
-            className="absolute top-4 left-4 z-50 p-2 rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/70 transition-colors"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </button>
+        <button
+          onClick={() => navigate("/")}
+          className="absolute top-4 left-4 z-50 p-2 rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/70 transition-colors"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
           <div className="aspect-video w-full bg-muted flex items-center justify-center">
             <p className="text-muted-foreground">Video not found</p>
           </div>
@@ -160,7 +160,7 @@ export default function VideoDetail() {
       {/* Video Player Section */}
       <section className="relative w-full bg-black">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/")}
           className="absolute top-4 left-4 z-50 p-2 rounded-full bg-background/50 backdrop-blur-sm hover:bg-background/70 transition-colors"
           aria-label="Go back"
         >
