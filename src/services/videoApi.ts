@@ -120,7 +120,7 @@ export const videoApi = {
     try {
       const response = await axios.post<VideoApiResponse>(
         `${API_BASE_URL}/hrf_get_video_details`,
-        { p_vlink: videoId }
+        { p_title: videoId }
       );
       console.log("Video Details Response", response);
       return response.data;
