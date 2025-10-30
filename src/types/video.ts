@@ -18,5 +18,10 @@ export interface VideoSection {
 export interface VideoSectionsResponse {
   status: number;
   message: string;
-  sections: VideoSection[];
+  result?: {
+    status: number;
+    message: string;
+    sections: VideoSection[];
+  };
+  sections?: VideoSection[];
 }
